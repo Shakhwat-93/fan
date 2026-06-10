@@ -58,6 +58,9 @@ function App() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [placedOrder, setPlacedOrder] = useState(null);
 
+  // Tracking States
+  const [hasFiredViewItem, setHasFiredViewItem] = useState(false);
+
   // ==========================================
   // VIEW ROUTING STATE
   // ==========================================
@@ -116,6 +119,28 @@ function App() {
       window.removeEventListener('hashchange', handleUrlRoute);
     };
   }, []);
+
+  // GA4 Data Layer view_item tracking
+  useEffect(() => {
+    if (!isLoadingProduct && !hasFiredViewItem && productName && unitPrice) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "view_item",
+        ecommerce: {
+          currency: "BDT",
+          value: unitPrice,
+          items: [
+            {
+              item_name: productName,
+              price: unitPrice,
+              quantity: 1
+            }
+          ]
+        }
+      });
+      setHasFiredViewItem(true);
+    }
+  }, [isLoadingProduct, productName, unitPrice, hasFiredViewItem]);
 
   // Fetch product data from Supabase
   const fetchProductDetails = async () => {
@@ -282,6 +307,26 @@ function App() {
       });
 
       setShowSuccessModal(true);
+
+      // Push GA4 Purchase Event
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "purchase",
+        ecommerce: {
+          transaction_id: generatedOrderId,
+          value: totalPrice,
+          tax: 0,
+          shipping: shippingCharge,
+          currency: "BDT",
+          items: [
+            {
+              item_name: productName,
+              price: unitPrice,
+              quantity: quantity
+            }
+          ]
+        }
+      });
 
       // Reset Form and States
       setCustomerName('');
