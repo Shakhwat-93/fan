@@ -980,6 +980,16 @@ a {
     gap: 16px;
 }
 
+.order-guarantees a {
+    color: var(--secondary);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.order-guarantees a:hover {
+    text-decoration: underline;
+}
+
 .guarantee-item {
     display: flex;
     gap: 12px;
@@ -1201,7 +1211,8 @@ a {
     margin-bottom: 16px;
 }
 
-.footer-links a:hover {
+.footer-links a:hover,
+.footer-contact a:hover {
     color: var(--bg-white);
 }
 

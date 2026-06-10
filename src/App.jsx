@@ -1176,7 +1176,7 @@ function App() {
               </div>
               <div className="guarantee-item">
                 <span>📞</span>
-                <p><strong>২৪/৭ সাপোর্ট:</strong> যেকোনো প্রয়োজনে সরাসরি কল করুন: <strong>+৮৮০১৭১১১২২২৩৩</strong></p>
+                <p><strong>২৪/৭ সাপোর্ট:</strong> যেকোনো প্রয়োজনে সরাসরি কল করুন: <a href="tel:01725201450"><strong>01725-201450</strong></a></p>
               </div>
             </div>
           </div>
@@ -1276,9 +1276,10 @@ function App() {
           </div>
           <div className="footer-contact">
             <h4>যোগাযোগ</h4>
-            <p>📍 বনানী, ঢাকা-১২১৩, বাংলাদেশ</p>
-            <p>📞 +৮৮০১৭১১১২২২৩৩</p>
-            <p>✉️ support@morshedzone.com</p>
+            <p>📍 Narsingdi, 1600</p>
+            <p>📞 <a href="tel:01725201450">01725-201450</a></p>
+            <p>✉️ <a href="mailto:morshedzone096@gmail.com">morshedzone096@gmail.com</a></p>
+            <p>💬 WhatsApp: <a href="https://wa.me/8801725201450" target="_blank" rel="noopener noreferrer">+880 1725-201450</a></p>
           </div>
         </div>
         <div className="footer-bottom">
