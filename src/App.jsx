@@ -61,6 +61,9 @@ function App() {
 
   // Tracking States
   const [hasFiredViewItem, setHasFiredViewItem] = useState(false);
+  const [gtmCode, setGtmCode] = useState('');
+  const [editGtmCode, setEditGtmCode] = useState('');
+
 
   // Fraud / Spam Prevention States
   const [userIp, setUserIp] = useState('');
@@ -170,6 +173,8 @@ function App() {
         setProductName(prod.name);
         setUnitPrice(Number(prod.price));
         setOriginalPrice(Number(prod.original_price));
+        setGtmCode(prod.gtm_code || '');
+        setEditGtmCode(prod.gtm_code || '');
         if (prod.images && prod.images.length > 0) {
           setProductImages(prod.images);
           setHeroImg(prod.images[0]);
@@ -204,6 +209,57 @@ function App() {
       console.error('Error fetching client IP on mount:', error);
     }
   };
+
+  // Dynamic GTM initialization
+  useEffect(() => {
+    if (!gtmCode) return;
+    
+    // Extract GTM ID
+    const match = gtmCode.match(/GTM-[A-Z0-9]+/i);
+    const gtmId = match ? match[0].toUpperCase() : null;
+    
+    if (!gtmId) {
+      console.warn('No valid GTM Container ID found in the configuration.');
+      return;
+    }
+    
+    // Prevent duplicate GTM init
+    if (window.gtmInitialized === gtmId) return;
+    window.gtmInitialized = gtmId;
+
+    // Remove existing GTM script if any
+    const existingScript = document.getElementById('gtm-script');
+    if (existingScript) existingScript.remove();
+    const existingNoscript = document.getElementById('gtm-noscript');
+    if (existingNoscript) existingNoscript.remove();
+
+    // Insert GTM script in Head
+    const script = document.createElement('script');
+    script.id = 'gtm-script';
+    script.innerHTML = `
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','${gtmId}');
+    `;
+    document.head.appendChild(script);
+
+    // Insert GTM noscript in Body
+    const noscript = document.createElement('noscript');
+    noscript.id = 'gtm-noscript';
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.googletagmanager.com/ns.html?id=${gtmId}`;
+    iframe.height = '0';
+    iframe.width = '0';
+    iframe.style.display = 'none';
+    iframe.style.visibility = 'hidden';
+    noscript.appendChild(iframe);
+    document.body.insertBefore(noscript, document.body.firstChild);
+
+    console.log(`GTM Initialized with ID: ${gtmId}`);
+  }, [gtmCode]);
+
 
 
   // Fetch orders list (Admin only)
@@ -544,7 +600,8 @@ function App() {
         body: JSON.stringify({
           name: editProductName,
           price: editUnitPrice,
-          original_price: editOriginalPrice
+          original_price: editOriginalPrice,
+          gtm_code: editGtmCode.trim()
         })
       });
       if (!response.ok) throw new Error('Failed to update product settings.');
@@ -553,6 +610,7 @@ function App() {
       setProductName(editProductName);
       setUnitPrice(Number(editUnitPrice));
       setOriginalPrice(Number(editOriginalPrice));
+      setGtmCode(editGtmCode.trim());
       alert('প্রোডাক্ট সেটিংস সফলভাবে আপডেট করা হয়েছে!');
     } catch (error) {
       console.error('Product update error:', error);
@@ -846,6 +904,18 @@ function App() {
                     onChange={(e) => setEditOriginalPrice(e.target.value)} 
                     required 
                   />
+                </div>
+                <div className="admin-form-group">
+                  <label>গুগল ট্যাগ ম্যানেজার (Google Tag Manager - GTM ID বা কোড)</label>
+                  <input 
+                    type="text" 
+                    value={editGtmCode} 
+                    onChange={(e) => setEditGtmCode(e.target.value)} 
+                    placeholder="যেমন: GTM-XXXXXXX অথবা সম্পূর্ণ GTM স্ক্রিপ্ট কোড"
+                  />
+                  <small style={{ display: 'block', marginTop: '6px', color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.4' }}>
+                    * আপনি সরাসরি Google Tag Manager Container ID (যেমন: GTM-XXXXXXX) লিখতে পারেন অথবা সম্পূর্ণ GTM স্ক্রিপ্ট ব্লক পেস্ট করতে পারেন। আমাদের সিস্টেম স্বয়ংক্রিয়ভাবে আইডিটি বের করে রান-টাইমে সেট করে নিবে।
+                  </small>
                 </div>
                 <button 
                   type="submit" 
