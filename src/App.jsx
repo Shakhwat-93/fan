@@ -909,6 +909,34 @@ function App() {
         </div>
       </section>
 
+      {/* Video Review Section */}
+      <section className="video-section">
+        <div className="container">
+          <div className="section-title-wrapper">
+            <span className="sub-title">🎥 লাইভ ভিডিও রিভিউ</span>
+            <h2 className="section-title">সরাসরি দেখুন ডিফেন্ডার ফ্যানটি</h2>
+            <div className="title-divider"></div>
+          </div>
+          
+          <div className="video-container-wrapper">
+            <iframe 
+              src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1521353123002765%2F&show_text=false&width=267&t=0" 
+              width="100%" 
+              height="100%" 
+              style={{ border: 'none', overflow: 'hidden' }} 
+              scrolling="no" 
+              frameBorder="0" 
+              allowFullScreen={true} 
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            />
+          </div>
+          
+          <p className="video-caption">
+            * ভিডিওতে ফ্যানটির রিয়েল লুক এবং চমৎকার বাতাস প্রবাহ সরাসরি দেখুন।
+          </p>
+        </div>
+      </section>
+
       {/* Gallery Carousel Section */}
       <section id="gallery" className="gallery-section">
         <div className="container">

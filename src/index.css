@@ -1863,3 +1863,50 @@ a {
     }
 }
 
+/* ==========================================
+   VIDEO REVIEW SECTION
+   ========================================== */
+.video-section {
+    padding: 80px 0;
+    background-color: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.video-section .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.video-container-wrapper {
+    margin-top: 32px;
+    max-width: 300px;
+    width: 100%;
+    aspect-ratio: 267 / 476;
+    background-color: #000;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 8px;
+    border: 6px solid var(--primary);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-normal);
+}
+
+.video-container-wrapper:hover {
+    transform: scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(15,23,42,0.25);
+    border-color: var(--secondary);
+}
+
+.video-caption {
+    margin-top: 20px;
+    font-weight: 600;
+    color: var(--text-main);
+    text-align: center;
+    font-size: 1.05rem;
+}
+
+
