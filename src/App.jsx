@@ -1155,7 +1155,7 @@ function App() {
               <div className="promo-icon">🎁</div>
               <div className="promo-details">
                 <h4>আজকের বিশেষ অফার</h4>
-                <p>ডিফেন্ডার ফ্যানটি কিনলে পাচ্ছেন ১,০০০ টাকা ফ্ল্যাট ডিসকাউন্ট!</p>
+                <p>ডিফেন্ডার ফ্যানটি কিনলে পাচ্ছেন 1,000 টাকা ফ্ল্যাট ডিসকাউন্ট!</p>
               </div>
             </div>
 
@@ -1234,13 +1234,13 @@ function App() {
                     className={`radio-label ${deliveryArea === 'inside' ? 'active' : ''}`}
                     onClick={() => handleAreaChange('inside')}
                   >
-                    <span>ঢাকার ভিতরে (৳৮০)</span>
+                    <span>ঢাকার ভিতরে (৳80)</span>
                   </div>
                   <div 
                     className={`radio-label ${deliveryArea === 'outside' ? 'active' : ''}`}
                     onClick={() => handleAreaChange('outside')}
                   >
-                    <span>ঢাকার বাইরে (৳১৫০)</span>
+                    <span>ঢাকার বাইরে (৳150)</span>
                   </div>
                 </div>
               </div>
