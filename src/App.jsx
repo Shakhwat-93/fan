@@ -95,7 +95,8 @@ function App() {
     // 2. Check URL for Admin route
     const handleUrlRoute = () => {
       const params = new URLSearchParams(window.location.search);
-      if (params.has('admin') || window.location.hash === '#admin') {
+      const pathname = window.location.pathname.toLowerCase().replace(/\/$/, "");
+      if (params.has('admin') || window.location.hash === '#admin' || pathname === '/admin') {
         const authenticated = sessionStorage.getItem('isAdminAuthenticated') === 'true';
         setCurrentView(authenticated ? 'admin' : 'admin-login');
       } else {
@@ -305,6 +306,7 @@ function App() {
       setIsAdminAuthenticated(true);
       setCurrentView('admin');
       setAdminPasscode('');
+      window.history.pushState({}, '', '/admin');
     } else {
       alert('ভুল পাসকোড! অনুগ্রহ করে আবার চেষ্টা করুন।');
     }
@@ -313,7 +315,8 @@ function App() {
   const handleAdminLogout = () => {
     sessionStorage.removeItem('isAdminAuthenticated');
     setIsAdminAuthenticated(false);
-    window.location.search = ''; // return to main page by clearing query params
+    setCurrentView('landing');
+    window.history.pushState({}, '', '/');
   };
 
   // Change Order Status
@@ -450,7 +453,10 @@ function App() {
             type="button" 
             className="cta-button secondary-cta" 
             style={{ marginTop: '16px', width: '100%' }}
-            onClick={() => window.location.search = ''}
+            onClick={() => {
+              window.history.pushState({}, '', '/');
+              setCurrentView('landing');
+            }}
           >
             ওয়েবসাইটে ফিরে যান
           </button>
@@ -471,7 +477,10 @@ function App() {
             <div style={{ display: 'flex', gap: '12px' }}>
               <button 
                 className="cta-button secondary-cta" 
-                onClick={() => window.location.search = ''}
+                onClick={() => {
+                  window.history.pushState({}, '', '/');
+                  setCurrentView('landing');
+                }}
               >
                 ওয়েবসাইট দেখুন
               </button>
@@ -1287,7 +1296,10 @@ function App() {
           <button 
             type="button" 
             className="admin-footer-btn"
-            onClick={() => setCurrentView('admin-login')}
+            onClick={() => {
+              window.history.pushState({}, '', '/admin');
+              setCurrentView('admin-login');
+            }}
           >
             MorshedZone Admin Panel
           </button>
