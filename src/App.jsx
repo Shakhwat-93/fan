@@ -10,11 +10,14 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Passcode for Admin Panel
 const ADMIN_PASSCODE = "admin123";
 
-// Bangla digits converter helper
+// Format numbers in a clean, readable English style
 const toBanglaDigits = (num) => {
   if (num === null || num === undefined) return '';
-  const banglaDigits = { '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪', '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯' };
-  return num.toString().split('').map(d => banglaDigits[d] || d).join('');
+  const str = num.toString().trim();
+  if (str !== '' && !isNaN(str)) {
+    return Number(str).toLocaleString('en-US');
+  }
+  return str;
 };
 
 function App() {
@@ -386,7 +389,7 @@ function App() {
       const updatedImages = [editImage1.trim(), editImage2.trim(), editImage3.trim()].filter(Boolean);
       
       if (updatedImages.length === 0) {
-        alert('অনুগ্রহ করে অন্তত ১টি ছবির লিংক দিন।');
+        alert('অনুগ্রহ করে অন্তত 1টি ছবির লিংক দিন।');
         return;
       }
 
@@ -578,9 +581,13 @@ function App() {
                       {filteredOrders.map((order) => (
                         <tr key={order.id}>
                           <td style={{ fontSize: '0.85rem' }}>
-                            {new Date(order.created_at).toLocaleString('bn-BD', {
-                              dateStyle: 'medium',
-                              timeStyle: 'short'
+                            {new Date(order.created_at).toLocaleString('en-GB', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true
                             })}
                           </td>
                           <td>
@@ -768,10 +775,10 @@ function App() {
       <section className="hero-section">
         <div className="container hero-container">
           <div className="hero-content">
-            <div className="badge-promo">১ বছরের সার্ভিস ওয়ারেন্টি</div>
+            <div className="badge-promo">1 বছরের সার্ভিস ওয়ারেন্টি</div>
             <h1 className="hero-title">গরমের তীব্রতায় স্বস্তির নিশ্চয়তা! <br /><span>{productName}</span></h1>
             <p className="hero-description">
-              বিদ্যুৎ চলে গেলেও বাতাস থামবে না! ১৬ ইঞ্চির শক্তিশালী ৫ ব্লেড ফ্যান ও ৪.৫ অ্যাম্পিয়ার ব্যাটারির দুর্দান্ত ব্যাকআপ নিয়ে এলো ডিফেন্ডার রিচার্জেবল টেবিল ফ্যান।
+              বিদ্যুৎ চলে গেলেও বাতাস থামবে না! 16 ইঞ্চির শক্তিশালী 5 ব্লেড ফ্যান ও 4.5 অ্যাম্পিয়ার ব্যাটারির দুর্দান্ত ব্যাকআপ নিয়ে এলো ডিফেন্ডার রিচার্জেবল টেবিল ফ্যান।
             </p>
             
             <div className="price-container">
@@ -844,8 +851,8 @@ function App() {
                 <path d="M8 5h8" />
               </svg>
             </div>
-            <h3>১২ মাসের ওয়ারেন্টি</h3>
-            <p>সম্পূর্ণ ১ বছর মেকানিক্যাল ও ইলেকট্রিকাল পার্টস সার্ভিস ওয়ারেন্টি</p>
+            <h3>12 মাসের ওয়ারেন্টি</h3>
+            <p>সম্পূর্ণ 1 বছর মেকানিক্যাল ও ইলেকট্রিকাল পার্টস সার্ভিস ওয়ারেন্টি</p>
           </div>
           <div className="highlight-card">
             <div className="highlight-icon-wrapper">
@@ -856,7 +863,7 @@ function App() {
               </svg>
             </div>
             <h3>অরিজিনাল পণ্য</h3>
-            <p>মেড ইন চায়না, ডিফেন্ডার ব্র্যান্ডের ১০০% অরিজিনাল রিচার্জেবল ফ্যান</p>
+            <p>মেড ইন চায়না, ডিফেন্ডার ব্র্যান্ডের 100% অরিজিনাল রিচার্জেবল ফ্যান</p>
           </div>
           <div className="highlight-card">
             <div className="highlight-icon-wrapper">
@@ -868,7 +875,7 @@ function App() {
               </svg>
             </div>
             <h3>দ্রুত ডেলিভারি</h3>
-            <p>ঢাকার মধ্যে ৪৮ ঘণ্টা ও ঢাকার বাইরে ৩-৫ দিনে ক্যাশ অন ডেলিভারি</p>
+            <p>ঢাকার মধ্যে 48 ঘণ্টা ও ঢাকার বাইরে 3-5 দিনে ক্যাশ অন ডেলিভারি</p>
           </div>
         </div>
       </section>
@@ -888,7 +895,7 @@ function App() {
                 <div className="feat-icon">🔌</div>
                 <h3>Dual AC/DC Operation</h3>
               </div>
-              <p>ফ্যানটি ২২০ ভোল্ট ওয়াল পাওয়ারে চালনা করার সাথে সাথে এর ১২ ভোল্ট ইন্টারনাল ব্যাটারি অটো চার্জ হতে থাকে। বিদ্যুৎ চলে গেলেও ফ্যানটি বন্ধ হবে না, স্বয়ংক্রিয়ভাবে ব্যাটারি মোডে চলতে থাকবে।</p>
+              <p>ফ্যানটি 220 ভোল্ট ওয়াল পাওয়ারে চালনা করার সাথে সাথে এর 12 ভোল্ট ইন্টারনাল ব্যাটারি অটো চার্জ হতে থাকে। বিদ্যুৎ চলে গেলেও ফ্যানটি বন্ধ হবে না, স্বয়ংক্রিয়ভাবে ব্যাটারি মোডে চলতে থাকবে।</p>
             </div>
 
             <div className="feature-card">
@@ -904,15 +911,15 @@ function App() {
                 <div className="feat-icon">💡</div>
                 <h3>8-SMD ব্রাইট LED লাইট</h3>
               </div>
-              <p>লোডশেডিংয়ের অন্ধকারে ঘরের আলোর বিকল্প হিসেবে এতে বিল্ট-ইন ৮টি শক্তিশালী এলইডি লাইট রয়েছে। লো স্পিডে এই লাইট সর্বোচ্চ ১৫০ ঘণ্টা পর্যন্ত একটানা আলো দিতে সক্ষম।</p>
+              <p>লোডশেডিংয়ের অন্ধকারে ঘরের আলোর বিকল্প হিসেবে এতে বিল্ট-ইন 8টি শক্তিশালী এলইডি লাইট রয়েছে। লো স্পিডে এই লাইট সর্বোচ্চ 150 ঘণ্টা পর্যন্ত একটানা আলো দিতে সক্ষম।</p>
             </div>
 
             <div className="feature-card">
               <div className="feature-head">
                 <div className="feat-icon">🌪️</div>
-                <h3>১২৫০ RPM শক্তিশালী মোটর</h3>
+                <h3>1250 RPM শক্তিশালী মোটর</h3>
               </div>
-              <p>১৬ ইঞ্চির ৫টি পাখা (5-blade) ও হাই-স্পিড মোটরের সমন্বয়ে এটি সর্বোচ্চ ১২৫০ আরপিএম গতিতে বাতাস ছড়ায়, যা একটি বড় রুমেও পর্যাপ্ত বাতাস প্রবাহের নিশ্চয়তা দেয়।</p>
+              <p>16 ইঞ্চির 5টি পাখা (5-blade) ও হাই-স্পিড মোটরের সমন্বয়ে এটি সর্বোচ্চ 1250 আরপিএম গতিতে বাতাস ছড়ায়, যা একটি বড় রুমেও পর্যাপ্ত বাতাস প্রবাহের নিশ্চয়তা দেয়।</p>
             </div>
           </div>
         </div>
@@ -999,11 +1006,11 @@ function App() {
                 </tr>
                 <tr>
                   <td className="spec-label">পাখার সাইজ</td>
-                  <td className="spec-value">১৬ ইঞ্চি (16 Inch)</td>
+                  <td className="spec-value">16 ইঞ্চি (16 Inch)</td>
                 </tr>
                 <tr>
                   <td className="spec-label">ব্লেড সংখ্যা</td>
-                  <td className="spec-value">৫ ব্লেড বিশিষ্ট শক্তিশালী সিস্টেম</td>
+                  <td className="spec-value">5 ব্লেড বিশিষ্ট শক্তিশালী সিস্টেম</td>
                 </tr>
                 <tr>
                   <td className="spec-label">মোটর স্পিড</td>
@@ -1019,7 +1026,7 @@ function App() {
                 </tr>
                 <tr>
                   <td className="spec-label">ওয়ারেন্টি</td>
-                  <td className="spec-value">১২ মাস (১ বছর) সার্ভিস ওয়ারেন্টি</td>
+                  <td className="spec-value">12 মাস (1 বছর) সার্ভিস ওয়ারেন্টি</td>
                 </tr>
                 <tr>
                   <td className="spec-label">উৎস দেশ</td>
@@ -1034,26 +1041,26 @@ function App() {
             <div className="backup-level">
               <div className="backup-info">
                 <span>লো স্পিড (Low Speed)</span>
-                <strong>১২ ঘণ্টা ব্যাকআপ</strong>
+                <strong>12 ঘণ্টা ব্যাকআপ</strong>
               </div>
               <div className="progress-bar"><div className="progress-fill low" style={{ width: '100%' }}></div></div>
             </div>
             <div className="backup-level">
               <div className="backup-info">
                 <span>মিডিয়াম স্পিড (Medium Speed)</span>
-                <strong>৬-৮ ঘণ্টা ব্যাকআপ</strong>
+                <strong>6-8 ঘণ্টা ব্যাকআপ</strong>
               </div>
               <div className="progress-bar"><div className="progress-fill med" style={{ width: '65%' }}></div></div>
             </div>
             <div className="backup-level">
               <div className="backup-info">
                 <span>হাই স্পিড (High Speed)</span>
-                <strong>৩-৪ ঘণ্টা ব্যাকআপ</strong>
+                <strong>3-4 ঘণ্টা ব্যাকআপ</strong>
               </div>
               <div className="progress-bar"><div className="progress-fill high" style={{ width: '33%' }}></div></div>
             </div>
             <div className="backup-note">
-              * LED লাইট শুধু ব্যবহার করলে এটি সর্বোচ্চ ১৫০ ঘণ্টা একটানা ব্যাকআপ দিতে পারে।
+              * LED লাইট শুধু ব্যবহার করলে এটি সর্বোচ্চ 150 ঘণ্টা একটানা ব্যাকআপ দিতে পারে।
             </div>
           </div>
         </div>
@@ -1072,15 +1079,15 @@ function App() {
             {[
               {
                 q: "ফ্যানের ব্যাটারি ফুল চার্জ হতে কত সময় নেয় এবং ব্যাকআপ কেমন দেয়?",
-                a: "ফ্যানটির ব্যাটারি সম্পূর্ণ চার্জ হতে সাধারণত ৬ থেকে ৮ ঘণ্টা সময় নেয়। চার্জ হয়ে গেলে এতে বিল্ট-ইন ওভারচার্জ প্রটেকশন থাকায় কারেন্ট অটোমেটিক বন্ধ হয়ে যায়। স্পিড সেটিং অনুযায়ী এটি ৩ থেকে ১২ ঘণ্টা পর্যন্ত রানিং ব্যাকআপ দেয়। হাই স্পিডে ৩-৪ ঘণ্টা এবং লো স্পিডে ১২ ঘণ্টা বাতাস উপভোগ করতে পারবেন।"
+                a: "ফ্যানটির ব্যাটারি সম্পূর্ণ চার্জ হতে সাধারণত 6 থেকে 8 ঘণ্টা সময় নেয়। চার্জ হয়ে গেলে এতে বিল্ট-ইন ওভারচার্জ প্রটেকশন থাকায় কারেন্ট অটোমেটিক বন্ধ হয়ে যায়। স্পিড সেটিং অনুযায়ী এটি 3 থেকে 12 ঘণ্টা পর্যন্ত রানিং ব্যাকআপ দেয়। হাই স্পিডে 3-4 ঘণ্টা এবং লো স্পিডে 12 ঘণ্টা বাতাস উপভোগ করতে পারবেন।"
               },
               {
                 q: "ফ্যানটি কি সরাসরি কারেন্টে প্লাগ করে চালানো যাবে?",
                 a: "হ্যাঁ, অবশ্যই! এটি সরাসরি এসি কারেন্টে প্লাগ-ইন করে ব্যবহার করতে পারবেন। কারেন্ট থাকা অবস্থায় এটি সরাসরি এসি কারেন্ট মোডে চলবে এবং একই সাথে এর অভ্যন্তরীণ ব্যাটারি চার্জ হতে থাকবে। চার্জিং সম্পন্ন হওয়ার পর ওভারহিটিং প্রটেকশন অন হয়ে ব্যাটারি সুরক্ষিত রাখবে।"
               },
               {
-                q: "১ বছরের সার্ভিস ওয়ারেন্টি কীভাবে পাবো?",
-                a: "আমরা ক্রয়ের দিন থেকে সম্পূর্ণ ৩৬৫ দিন (১ বছর) সার্ভিস ওয়ারেন্টি প্রদান করি। যেকোনো ধরনের মেকানিক্যাল বা ইলেকট্রিকাল ইন্টারনাল সমস্যার ক্ষেত্রে আমাদের কাস্টমার সার্ভিসের নম্বরে যোগাযোগ করলে সম্পূর্ণ বিনামূল্যে সার্ভিসিং করে দেওয়া হবে।"
+                q: "1 বছরের সার্ভিস ওয়ারেন্টি কীভাবে পাবো?",
+                a: "আমরা ক্রয়ের দিন থেকে সম্পূর্ণ 365 দিন (1 বছর) সার্ভিস ওয়ারেন্টি প্রদান করি। যেকোনো ধরনের মেকানিক্যাল বা ইলেকট্রিকাল ইন্টারনাল সমস্যার ক্ষেত্রে আমাদের কাস্টমার সার্ভিসের নম্বরে যোগাযোগ করলে সম্পূর্ণ বিনামূল্যে সার্ভিসিং করে দেওয়া হবে।"
               }
             ].map((faq, idx) => (
               <div key={idx} className={`faq-card ${openFaqIndex === idx ? 'open' : ''}`}>
@@ -1109,7 +1116,7 @@ function App() {
           <div className="reviews-grid">
             <div className="review-card">
               <div className="review-rating">★★★★★</div>
-              <p className="review-text">"ডিফেন্ডার ফ্যানটি আসলেই অসাধারণ। ঢাকার বাইরে আমাদের এখানে প্রচুর লোডশেডিং হয়। এই ফ্যানটি কেনার পর রাতে শান্তিতে ঘুমাতে পারছি। চার্জিং ব্যাকআপ ৪-৫ ঘণ্টা অনায়াসে পাই মিডিয়াম স্পিডে। ডেলিভারিও খুব দ্রুত পেয়েছি।"</p>
+              <p className="review-text">"ডিফেন্ডার ফ্যানটি আসলেই অসাধারণ। ঢাকার বাইরে আমাদের এখানে প্রচুর লোডশেডিং হয়। এই ফ্যানটি কেনার পর রাতে শান্তিতে ঘুমাতে পারছি। চার্জিং ব্যাকআপ 4-5 ঘণ্টা অনায়াসে পাই মিডিয়াম স্পিডে। ডেলিভারিও খুব দ্রুত পেয়েছি।"</p>
               <div className="review-author">
                 <strong>মোঃ জাহিদুল ইসলাম</strong>
                 <span>বগুড়া</span>
@@ -1118,7 +1125,7 @@ function App() {
             
             <div className="review-card">
               <div className="review-rating">★★★★★</div>
-              <p className="review-text">"ফ্যানের বিল্ড কোয়ালিটি অনেক প্রিমিয়াম। লাইটের আলোও দারুণ, চার্জে দিয়ে সবসময় অন করে রাখা যায়। ঢাকার মধ্যে মাত্র ১ দিনে হাতে পেয়েছি এবং সবচেয়ে বড় কথা প্রোডাক্ট চেক করে টাকা দেওয়ার অপশন ছিল।"</p>
+              <p className="review-text">"ফ্যানের বিল্ড কোয়ালিটি অনেক প্রিমিয়াম। লাইটের আলোও দারুণ, চার্জে দিয়ে সবসময় অন করে রাখা যায়। ঢাকার মধ্যে মাত্র 1 দিনে হাতে পেয়েছি এবং সবচেয়ে বড় কথা প্রোডাক্ট চেক করে টাকা দেওয়ার অপশন ছিল।"</p>
               <div className="review-author">
                 <strong>ফারজানা আক্তার</strong>
                 <span>মিরপুর, ঢাকা</span>
@@ -1127,7 +1134,7 @@ function App() {
 
             <div className="review-card">
               <div className="review-rating">★★★★★</div>
-              <p className="review-text">"ডেলিভারি চার্জ বাইরের জন্য ১৫০ টাকা কিন্তু ওরা প্যাকেজিংটা খুব সুন্দর করে পাঠিয়েছিল। ফ্যানের বাতাস অনেক ঠাণ্ডা এবং ভালো ছড়ায়। রিচার্জেবল ফ্যান হিসেবে খুবই সন্তোষজনক প্রোডাক্ট।"</p>
+              <p className="review-text">"ডেলিভারি চার্জ বাইরের জন্য 150 টাকা কিন্তু ওরা প্যাকেজিংটা খুব সুন্দর করে পাঠিয়েছিল। ফ্যানের বাতাস অনেক ঠাণ্ডা এবং ভালো ছড়ায়। রিচার্জেবল ফ্যান হিসেবে খুবই সন্তোষজনক প্রোডাক্ট।"</p>
               <div className="review-author">
                 <strong>সজীব রহমান</strong>
                 <span>চট্টগ্রাম</span>
@@ -1181,11 +1188,11 @@ function App() {
             <div className="order-guarantees">
               <div className="guarantee-item">
                 <span>🛡️</span>
-                <p><strong>১০০% নিরাপদ শপিং:</strong> পার্সেল পাওয়ার পর খুলে দেখে মূল্য পরিশোধের সুবিধা।</p>
+                <p><strong>100% নিরাপদ শপিং:</strong> পার্সেল পাওয়ার পর খুলে দেখে মূল্য পরিশোধের সুবিধা।</p>
               </div>
               <div className="guarantee-item">
                 <span>📞</span>
-                <p><strong>২৪/৭ সাপোর্ট:</strong> যেকোনো প্রয়োজনে সরাসরি কল করুন: <a href="tel:01725201450"><strong>01725-201450</strong></a></p>
+                <p><strong>24/7 সাপোর্ট:</strong> যেকোনো প্রয়োজনে সরাসরি কল করুন: <a href="tel:01725201450"><strong>01725-201450</strong></a></p>
               </div>
             </div>
           </div>
