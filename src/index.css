@@ -2017,5 +2017,23 @@ a {
     transform: translateY(-2px);
 }
 
+/* ==========================================
+   SUCCESS DEDICATED PAGE
+   ========================================== */
+.success-page-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 60px 24px;
+    background-color: var(--bg-light);
+}
+
+.success-page-card {
+    margin: 0 auto;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
 
 

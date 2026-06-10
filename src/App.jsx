@@ -55,9 +55,11 @@ function App() {
   const [productVariant, setProductVariant] = useState('Grey'); // 'Grey' | 'Blue'
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
 
-  // Order Success Modal States
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [placedOrder, setPlacedOrder] = useState(null);
+  // Order Placed details state
+  const [placedOrder, setPlacedOrder] = useState(() => {
+    const saved = sessionStorage.getItem('placedOrder');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   // Tracking States
   const [hasFiredViewItem, setHasFiredViewItem] = useState(false);
@@ -120,6 +122,8 @@ function App() {
       if (params.has('admin') || window.location.hash === '#admin' || pathname === '/admin') {
         const authenticated = sessionStorage.getItem('isAdminAuthenticated') === 'true';
         setCurrentView(authenticated ? 'admin' : 'admin-login');
+      } else if (pathname === '/order-success' || window.location.hash === '#success') {
+        setCurrentView('success');
       } else {
         setCurrentView('landing');
       }
@@ -493,7 +497,7 @@ function App() {
       // 5. Update local storage timestamp
       localStorage.setItem('last_order_time', Date.now().toString());
 
-      setPlacedOrder({
+      const orderDetails = {
         id: generatedOrderId,
         name: name,
         phone: phone,
@@ -501,19 +505,23 @@ function App() {
         quantity: quantity,
         total_price: totalPrice,
         variant: productVariant,
-      });
+      };
 
-      setShowSuccessModal(true);
+      // Save order details to sessionStorage to survive refreshes
+      sessionStorage.setItem('placedOrder', JSON.stringify(orderDetails));
+      setPlacedOrder(orderDetails);
 
-      // Push GA4 Purchase Event
+      // Transition to success page view
+      window.history.pushState({}, '', '/order-success');
+      setCurrentView('success');
+
+      // Push GA4 Purchase Event in exact requested format (without customer sensitive data)
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: "purchase",
         ecommerce: {
           transaction_id: generatedOrderId,
           value: totalPrice,
-          tax: 0,
-          shipping: shippingCharge,
           currency: "BDT",
           items: [
             {
@@ -1006,6 +1014,54 @@ function App() {
               </form>
             </div>
           )}
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // RENDER VIEW: ORDER SUCCESS PAGE
+  // ==========================================
+  if (currentView === 'success') {
+    if (!placedOrder) {
+      // Fallback redirect if no order state
+      window.history.pushState({}, '', '/');
+      setCurrentView('landing');
+      return null;
+    }
+
+    return (
+      <div className="success-page-layout">
+        <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+          <div className="success-modal-card success-page-card">
+            <div className="success-badge">✔</div>
+            <h2>অর্ডারটি সফলভাবে সম্পন্ন হয়েছে!</h2>
+            <p>আপনার অর্ডারটির বিস্তারিত নিচে দেওয়া হলো। আমাদের একজন প্রতিনিধি খুব শীঘ্রই আপনার মোবাইলে কল করে অর্ডারটি কনফার্ম করবেন।</p>
+            
+            <div className="order-summary-card">
+              <div className="summary-line"><span>অর্ডার আইডি:</span> <strong>#{placedOrder.id}</strong></div>
+              <div className="summary-line"><span>গ্রাহকের নাম:</span> <strong>{placedOrder.name}</strong></div>
+              <div className="summary-line"><span>মোবাইল নং:</span> <strong>{placedOrder.phone}</strong></div>
+              <div className="summary-line"><span>ডেলিভারি ঠিকানা:</span> <strong>{placedOrder.address}</strong></div>
+              <div className="summary-line"><span>প্রোডাক্ট:</span> <strong>{productName}</strong></div>
+              <div className="summary-line"><span>কালার (ভেরিয়েন্ট):</span> <strong>{placedOrder.variant === 'Grey' ? 'ধূসর (Grey)' : 'নীল (Blue)'}</strong></div>
+              <div className="summary-line"><span>পরিমাণ:</span> <strong>{toBanglaDigits(placedOrder.quantity)} টি</strong></div>
+              <div className="summary-line"><span>মোট প্রদেয় মূল্য:</span> <strong className="accent-color">৳{toBanglaDigits(placedOrder.total_price)}</strong></div>
+            </div>
+
+            <button 
+              type="button" 
+              className="close-modal-btn" 
+              onClick={() => {
+                sessionStorage.removeItem('placedOrder');
+                setPlacedOrder(null);
+                window.history.pushState({}, '', '/');
+                setCurrentView('landing');
+              }}
+            >
+              হোমপেজে ফিরে যান
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -1560,7 +1616,7 @@ function App() {
 
               <button type="submit" className="submit-order-btn ripple" disabled={isSubmittingOrder}>
                 <span style={{ opacity: isSubmittingOrder ? 0.5 : 1 }}>
-                  কনফার্ম অর্ডার করুন - ৳{toBanglaDigits(totalPrice)}
+                  {isSubmittingOrder ? 'অর্ডার প্রসেস হচ্ছে, দয়া করে অপেক্ষা করুন...' : `কনফার্ম অর্ডার করুন - ৳${toBanglaDigits(totalPrice)}`}
                 </span>
                 {isSubmittingOrder && <span className="spinner"></span>}
               </button>
@@ -1606,29 +1662,7 @@ function App() {
         </div>
       </footer>
 
-      {/* Success Modal */}
-      {showSuccessModal && placedOrder && (
-        <div className="modal-overlay">
-          <div className="success-modal-card">
-            <div className="success-badge">✔</div>
-            <h2>অর্ডারটি সফলভাবে সম্পন্ন হয়েছে!</h2>
-            <p>আপনার অর্ডারটির বিস্তারিত নিচে দেওয়া হলো। আমাদের একজন প্রতিনিধি খুব শীঘ্রই আপনার মোবাইলে কল করে অর্ডারটি কনফার্ম করবেন।</p>
-            
-            <div className="order-summary-card">
-              <div className="summary-line"><span>অর্ডার আইডি:</span> <strong>#{placedOrder.id}</strong></div>
-              <div className="summary-line"><span>গ্রাহকের নাম:</span> <strong>{placedOrder.name}</strong></div>
-              <div className="summary-line"><span>মোবাইল নং:</span> <strong>{placedOrder.phone}</strong></div>
-              <div className="summary-line"><span>ডেলিভারি ঠিকানা:</span> <strong>{placedOrder.address}</strong></div>
-              <div className="summary-line"><span>প্রোডাক্ট:</span> <strong>{productName}</strong></div>
-              <div className="summary-line"><span>কালার (ভেরিয়েন্ট):</span> <strong>{placedOrder.variant === 'Grey' ? 'ধূসর (Grey)' : 'নীল (Blue)'}</strong></div>
-              <div className="summary-line"><span>পরিমাণ:</span> <strong>{toBanglaDigits(placedOrder.quantity)} টি</strong></div>
-              <div className="summary-line"><span>মোট প্রদেয় মূল্য:</span> <strong className="accent-color">৳{toBanglaDigits(placedOrder.total_price)}</strong></div>
-            </div>
 
-            <button type="button" className="close-modal-btn" onClick={() => setShowSuccessModal(false)}>ঠিক আছে</button>
-          </div>
-        </div>
-      )}
 
       {/* Blocked IP Modal */}
       {isBlockedUser && (
