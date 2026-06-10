@@ -1503,6 +1503,18 @@ function App() {
               </div>
 
               <div className="form-group">
+                <label htmlFor="customer-address">পূর্ণ ঠিকানা <span className="required">*</span></label>
+                <textarea 
+                  id="customer-address" 
+                  value={customerAddress}
+                  onChange={(e) => setCustomerAddress(e.target.value)}
+                  placeholder="বাসা নং, রোড নং, গ্রাম/মহল্লা, থানা, জেলা উল্লেখ করুন" 
+                  rows="3" 
+                  required 
+                />
+              </div>
+
+              <div className="form-group">
                 <label>ফ্যানের কালার (পছন্দ করুন) <span className="required">*</span></label>
                 <div className="radio-group">
                   <div 
@@ -1536,18 +1548,6 @@ function App() {
                     <span>ঢাকার বাইরে (৳150)</span>
                   </div>
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="customer-address">পূর্ণ ঠিকানা <span className="required">*</span></label>
-                <textarea 
-                  id="customer-address" 
-                  value={customerAddress}
-                  onChange={(e) => setCustomerAddress(e.target.value)}
-                  placeholder="বাসা নং, রোড নং, গ্রাম/মহল্লা, থানা, জেলা উল্লেখ করুন" 
-                  rows="3" 
-                  required 
-                />
               </div>
 
               <div className="payment-method-box">
