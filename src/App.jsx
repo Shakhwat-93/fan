@@ -52,6 +52,7 @@ function App() {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
+  const [productVariant, setProductVariant] = useState('Grey'); // 'Grey' | 'Blue'
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
 
   // Order Success Modal States
@@ -261,8 +262,9 @@ function App() {
       return;
     }
 
-    if (phone.length !== 11) {
-      alert('অনুগ্রহ করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।');
+    const phoneRegex = /^01[3-9]\d{8}$/;
+    if (!phoneRegex.test(phone)) {
+      alert('দুঃখিত! অনুগ্রহ করে সঠিক ১১ ডিজিটের বাংলাদেশী মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)।');
       return;
     }
 
@@ -289,6 +291,7 @@ function App() {
           product_name: productName,
           quantity: quantity,
           status: 'pending',
+          variant: productVariant,
         }),
       });
 
@@ -304,6 +307,7 @@ function App() {
         address: address,
         quantity: quantity,
         total_price: totalPrice,
+        variant: productVariant,
       });
 
       setShowSuccessModal(true);
@@ -332,6 +336,7 @@ function App() {
       setCustomerName('');
       setCustomerPhone('');
       setCustomerAddress('');
+      setProductVariant('Grey');
       setQuantity(1);
       setDeliveryArea('inside');
       setShippingCharge(80);
@@ -646,7 +651,7 @@ function App() {
                             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--secondary)' }}>({order.delivery_area})</span>
                           </td>
                           <td>
-                            {toBanglaDigits(order.quantity)} টি ফ্যান
+                            {toBanglaDigits(order.quantity)} টি ফ্যান ({order.variant === 'Blue' ? 'নীল' : 'ধূসর'})
                             <br />
                             <strong>৳{toBanglaDigits(order.total_price)}</strong>
                           </td>
@@ -1273,6 +1278,24 @@ function App() {
               </div>
 
               <div className="form-group">
+                <label>ফ্যানের কালার (পছন্দ করুন) <span className="required">*</span></label>
+                <div className="radio-group">
+                  <div 
+                    className={`radio-label ${productVariant === 'Grey' ? 'active' : ''}`}
+                    onClick={() => setProductVariant('Grey')}
+                  >
+                    <span>ধূসর (Grey)</span>
+                  </div>
+                  <div 
+                    className={`radio-label ${productVariant === 'Blue' ? 'active' : ''}`}
+                    onClick={() => setProductVariant('Blue')}
+                  >
+                    <span>নীল (Blue)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group">
                 <label>ডেলিভারি এরিয়া <span className="required">*</span></label>
                 <div className="radio-group">
                   <div 
@@ -1372,6 +1395,7 @@ function App() {
               <div className="summary-line"><span>মোবাইল নং:</span> <strong>{placedOrder.phone}</strong></div>
               <div className="summary-line"><span>ডেলিভারি ঠিকানা:</span> <strong>{placedOrder.address}</strong></div>
               <div className="summary-line"><span>প্রোডাক্ট:</span> <strong>{productName}</strong></div>
+              <div className="summary-line"><span>কালার (ভেরিয়েন্ট):</span> <strong>{placedOrder.variant === 'Grey' ? 'ধূসর (Grey)' : 'নীল (Blue)'}</strong></div>
               <div className="summary-line"><span>পরিমাণ:</span> <strong>{toBanglaDigits(placedOrder.quantity)} টি</strong></div>
               <div className="summary-line"><span>মোট প্রদেয় মূল্য:</span> <strong className="accent-color">৳{toBanglaDigits(placedOrder.total_price)}</strong></div>
             </div>
