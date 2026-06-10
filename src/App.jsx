@@ -63,6 +63,9 @@ function App() {
   const [hasFiredViewItem, setHasFiredViewItem] = useState(false);
   const [gtmCode, setGtmCode] = useState('');
   const [editGtmCode, setEditGtmCode] = useState('');
+  const [announcementText, setAnnouncementText] = useState('⚡ আজকের অফারে সীমিত সময়ের জন্য ফ্রি ডেলিভারি ও আকর্ষণীয় ডিসকাউন্ট! ⚡');
+  const [editAnnouncementText, setEditAnnouncementText] = useState('⚡ আজকের অফারে সীমিত সময়ের জন্য ফ্রি ডেলিভারি ও আকর্ষণীয় ডিসকাউন্ট! ⚡');
+
 
 
   // Fraud / Spam Prevention States
@@ -175,6 +178,9 @@ function App() {
         setOriginalPrice(Number(prod.original_price));
         setGtmCode(prod.gtm_code || '');
         setEditGtmCode(prod.gtm_code || '');
+        setAnnouncementText(prod.announcement_text || '⚡ আজকের অফারে সীমিত সময়ের জন্য ফ্রি ডেলিভারি ও আকর্ষণীয় ডিসকাউন্ট! ⚡');
+        setEditAnnouncementText(prod.announcement_text || '⚡ আজকের অফারে সীমিত সময়ের জন্য ফ্রি ডেলিভারি ও আকর্ষণীয় ডিসকাউন্ট! ⚡');
+
         if (prod.images && prod.images.length > 0) {
           setProductImages(prod.images);
           setHeroImg(prod.images[0]);
@@ -601,7 +607,8 @@ function App() {
           name: editProductName,
           price: editUnitPrice,
           original_price: editOriginalPrice,
-          gtm_code: editGtmCode.trim()
+          gtm_code: editGtmCode.trim(),
+          announcement_text: editAnnouncementText.trim()
         })
       });
       if (!response.ok) throw new Error('Failed to update product settings.');
@@ -611,6 +618,8 @@ function App() {
       setUnitPrice(Number(editUnitPrice));
       setOriginalPrice(Number(editOriginalPrice));
       setGtmCode(editGtmCode.trim());
+      setAnnouncementText(editAnnouncementText.trim());
+
       alert('প্রোডাক্ট সেটিংস সফলভাবে আপডেট করা হয়েছে!');
     } catch (error) {
       console.error('Product update error:', error);
@@ -917,6 +926,19 @@ function App() {
                     * আপনি সরাসরি Google Tag Manager Container ID (যেমন: GTM-XXXXXXX) লিখতে পারেন অথবা সম্পূর্ণ GTM স্ক্রিপ্ট ব্লক পেস্ট করতে পারেন। আমাদের সিস্টেম স্বয়ংক্রিয়ভাবে আইডিটি বের করে রান-টাইমে সেট করে নিবে।
                   </small>
                 </div>
+                <div className="admin-form-group">
+                  <label>টপ অ্যানাউন্সমেন্ট বার টেক্সট (Top Announcement Bar Text)</label>
+                  <textarea 
+                    value={editAnnouncementText} 
+                    onChange={(e) => setEditAnnouncementText(e.target.value)} 
+                    placeholder="যেমন: ⚡ আজকের অফারে সীমিত সময়ের জন্য ফ্রি ডেলিভারি ও আকর্ষণীয় ডিসকাউন্ট! ⚡"
+                    rows="2"
+                    required
+                  />
+                  <small style={{ display: 'block', marginTop: '6px', color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.4' }}>
+                    * এটি ল্যান্ডিং পেজের একেবারে উপরে থাকা ঘোষণা স্ট্রিপের টেক্সট। টেক্সটটি ফাঁকা রাখলে ঘোষণা বারটি প্রদর্শিত হবে না।
+                  </small>
+                </div>
                 <button 
                   type="submit" 
                   className="cta-button primary-cta ripple"
@@ -995,9 +1017,11 @@ function App() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className="announcement-bar">
-        <p>⚡ আজকের অফারে সীমিত সময়ের জন্য ফ্রি ডেলিভারি ও আকর্ষণীয় ডিসকাউন্ট! ⚡</p>
-      </div>
+      {announcementText && (
+        <div className="announcement-bar">
+          <p>{announcementText}</p>
+        </div>
+      )}
 
       {/* Header Section */}
       <header className="main-header">

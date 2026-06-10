@@ -1768,15 +1768,19 @@ a {
     margin-bottom: 8px;
 }
 
-.admin-form-group input {
+.admin-form-group input,
+.admin-form-group textarea {
     width: 100%;
     padding: 12px;
     border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
     font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
 }
 
-.admin-form-group input:focus {
+.admin-form-group input:focus,
+.admin-form-group textarea:focus {
     border-color: var(--secondary);
     outline: none;
 }
