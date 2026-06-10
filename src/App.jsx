@@ -62,6 +62,11 @@ function App() {
   // Tracking States
   const [hasFiredViewItem, setHasFiredViewItem] = useState(false);
 
+  // Fraud / Spam Prevention States
+  const [userIp, setUserIp] = useState('');
+  const [isBlockedUser, setIsBlockedUser] = useState(false);
+  const [isDuplicateOrder, setIsDuplicateOrder] = useState(false);
+
   // ==========================================
   // VIEW ROUTING STATE
   // ==========================================
@@ -99,7 +104,10 @@ function App() {
     // 1. Fetch product settings
     fetchProductDetails();
 
-    // 2. Check URL for Admin route
+    // 2. Fetch client IP address for spam protection
+    fetchUserIp();
+
+    // 3. Check URL for Admin route
     const handleUrlRoute = () => {
       const params = new URLSearchParams(window.location.search);
       const pathname = window.location.pathname.toLowerCase().replace(/\/$/, "");
@@ -181,6 +189,22 @@ function App() {
       setIsLoadingProduct(false);
     }
   };
+
+  // Fetch client IP address for spam protection
+  const fetchUserIp = async () => {
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.ip) {
+          setUserIp(data.ip);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching client IP on mount:', error);
+    }
+  };
+
 
   // Fetch orders list (Admin only)
   const fetchOrders = async () => {
@@ -271,6 +295,109 @@ function App() {
     setIsSubmittingOrder(true);
 
     try {
+      // 1. Resolve client IP if it hasn't been fetched yet
+      let currentIp = userIp;
+      if (!currentIp) {
+        try {
+          const ipRes = await fetch('https://api.ipify.org?format=json');
+          if (ipRes.ok) {
+            const ipData = await ipRes.json();
+            if (ipData && ipData.ip) {
+              currentIp = ipData.ip;
+              setUserIp(currentIp);
+            }
+          }
+        } catch (ipErr) {
+          console.error('Failed to resolve IP during order submit:', ipErr);
+        }
+      }
+
+      // 2. Blocked IP check in Supabase
+      if (currentIp) {
+        try {
+          const blockedRes = await fetch(`${SUPABASE_URL}/rest/v1/blocked_ip_addresses?ip_address=eq.${encodeURIComponent(currentIp)}&is_active=eq.true`, {
+            method: 'GET',
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+          });
+          if (blockedRes.ok) {
+            const blockedData = await blockedRes.json();
+            if (blockedData && blockedData.length > 0) {
+              setIsBlockedUser(true);
+              setIsSubmittingOrder(false);
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('Error checking blocked IP status:', err);
+        }
+      }
+
+      // 3. Rate limiting check (3-hour window)
+      const bypassNumbers = ['01953986982', '01315183993'];
+      const isBypassed = bypassNumbers.includes(phone);
+
+      if (!isBypassed) {
+        // A. Check localStorage
+        const lastOrderTimeStr = localStorage.getItem('last_order_time');
+        if (lastOrderTimeStr) {
+          const lastOrderTime = Number(lastOrderTimeStr);
+          if (!isNaN(lastOrderTime)) {
+            const hoursDiff = (Date.now() - lastOrderTime) / (1000 * 60 * 60);
+            if (hoursDiff < 3) {
+              setIsDuplicateOrder(true);
+              setIsSubmittingOrder(false);
+              return;
+            }
+          }
+        }
+
+        // B. Check database records within 3 hours
+        const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
+        try {
+          const phoneCheckPromise = fetch(`${SUPABASE_URL}/rest/v1/orders?phone=eq.${encodeURIComponent(phone)}&created_at=gte.${threeHoursAgo}&select=id`, {
+            method: 'GET',
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+          });
+
+          const ipCheckPromise = currentIp ? fetch(`${SUPABASE_URL}/rest/v1/orders?ip_address=eq.${encodeURIComponent(currentIp)}&created_at=gte.${threeHoursAgo}&select=id`, {
+            method: 'GET',
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+          }) : Promise.resolve(null);
+
+          const [phoneCheckRes, ipCheckRes] = await Promise.all([phoneCheckPromise, ipCheckPromise]);
+
+          if (phoneCheckRes && phoneCheckRes.ok) {
+            const phoneCheckData = await phoneCheckRes.json();
+            if (phoneCheckData && phoneCheckData.length > 0) {
+              setIsDuplicateOrder(true);
+              setIsSubmittingOrder(false);
+              return;
+            }
+          }
+
+          if (ipCheckRes && ipCheckRes.ok) {
+            const ipCheckData = await ipCheckRes.json();
+            if (ipCheckData && ipCheckData.length > 0) {
+              setIsDuplicateOrder(true);
+              setIsSubmittingOrder(false);
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('Rate limit DB check failed:', err);
+        }
+      }
+
+      // 4. Insert order if all checks passed
       const generatedOrderId = 'MZ-' + Math.floor(100000 + Math.random() * 900000);
 
       const response = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
@@ -292,6 +419,7 @@ function App() {
           quantity: quantity,
           status: 'pending',
           variant: productVariant,
+          ip_address: currentIp || null
         }),
       });
 
@@ -299,6 +427,9 @@ function App() {
         const err = await response.json();
         throw new Error(err.message || 'অর্ডার করতে ব্যর্থ হয়েছে।');
       }
+
+      // 5. Update local storage timestamp
+      localStorage.setItem('last_order_time', Date.now().toString());
 
       setPlacedOrder({
         id: generatedOrderId,
@@ -1404,6 +1535,31 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Blocked IP Modal */}
+      {isBlockedUser && (
+        <div className="modal-overlay">
+          <div className="error-modal-card">
+            <div className="error-badge">✖</div>
+            <h2>অর্ডার বুকিং সাময়িকভাবে বন্ধ আছে</h2>
+            <p>দুঃখিত, স্প্যামিং বা সন্দেহজনক অ্যাক্টিভিটির কারণে আপনার আইপি ঠিকানা (IP Address) থেকে নতুন অর্ডার দেওয়া বন্ধ করা হয়েছে। আপনার কোনো সহায়তার প্রয়োজন হলে আমাদের কাস্টমার সাপোর্টে সরাসরি যোগাযোগ করুন।</p>
+            <button type="button" className="close-error-btn" onClick={() => setIsBlockedUser(false)}>ঠিক আছে</button>
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate / Rate Limit Modal */}
+      {isDuplicateOrder && (
+        <div className="modal-overlay">
+          <div className="error-modal-card">
+            <div className="warning-badge">⚠</div>
+            <h2>ইতিমধ্যে একটি অর্ডার দেওয়া হয়েছে!</h2>
+            <p>আমাদের সিস্টেমে ৩ ঘণ্টার মধ্যে একই মোবাইল নম্বর বা আইপি থেকে ডুপ্লিকেট অর্ডারের প্রচেষ্টা সনাক্ত করা হয়েছে। অনুগ্রহ করে পূর্বের অর্ডারটি সম্পন্ন হওয়া পর্যন্ত অপেক্ষা করুন অথবা কোনো পরিবর্তনের জন্য আমাদের কাস্টমার কেয়ারে যোগাযোগ করুন।</p>
+            <button type="button" className="close-warning-btn" onClick={() => setIsDuplicateOrder(false)}>ঠিক আছে</button>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }
