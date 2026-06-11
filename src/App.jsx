@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 // ==========================================
@@ -54,6 +54,8 @@ function App() {
   const [customerAddress, setCustomerAddress] = useState('');
   const [productVariant, setProductVariant] = useState('Grey'); // 'Grey' | 'Blue'
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const isSubmittingRef = useRef(false);
+  const [checkingCourier, setCheckingCourier] = useState({});
 
   // Order Placed details state
   const [placedOrder, setPlacedOrder] = useState(() => {
@@ -429,6 +431,8 @@ function App() {
       return;
     }
 
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setIsSubmittingOrder(true);
 
     try {
@@ -663,6 +667,7 @@ function App() {
       console.error('Order error:', error);
       alert('দুঃখিত, কোনো একটি সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন। ত্রুটি: ' + error.message);
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmittingOrder(false);
     }
   };
@@ -692,6 +697,9 @@ function App() {
 
   // Manual Courier Check (Admin only)
   const handleCourierCheckManual = async (orderId, phone) => {
+    if (checkingCourier[orderId]) return;
+    
+    setCheckingCourier((prev) => ({ ...prev, [orderId]: true }));
     try {
       const response = await fetch('https://api.bdcourier.com/courier-check', {
         method: 'POST',
@@ -725,6 +733,8 @@ function App() {
     } catch (err) {
       console.error('Manual courier check error:', err);
       alert('কুরিয়ার তথ্য চেক করতে সমস্যা হয়েছে।');
+    } finally {
+      setCheckingCourier((prev) => ({ ...prev, [orderId]: false }));
     }
   };
 
@@ -1057,8 +1067,9 @@ function App() {
                                 className="cta-button secondary-cta" 
                                 style={{ padding: '6px 12px', fontSize: '0.8rem', fontWeight: 600, minHeight: 'auto' }}
                                 onClick={() => handleCourierCheckManual(order.id, order.phone)}
+                                disabled={!!checkingCourier[order.id]}
                               >
-                                কুরিয়ার চেক
+                                {checkingCourier[order.id] ? 'চেক হচ্ছে...' : 'কুরিয়ার চেক'}
                               </button>
                             )}
                           </td>
