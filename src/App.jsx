@@ -8,7 +8,7 @@ const SUPABASE_URL = "https://brgyyxaenljlqbgszksz.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ3l5eGFlbmxqbHFiZ3N6a3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MzMxNTAsImV4cCI6MjA5NjUwOTE1MH0.z5zOVc60mk0wbZq_rahCmh3nDgbSFmeovj1VeToIw6s";
 
 // Passcode for Admin Panel
-const ADMIN_PASSCODE = "admin123";
+const ADMIN_PASSCODE = "morshedzone123";
 
 // Format numbers in a clean, readable English style
 const toBanglaDigits = (num) => {
@@ -1649,16 +1649,9 @@ function App() {
         </div>
         <div className="footer-bottom">
           <p>&copy; 2026 MorshedZone. সর্বস্বত্ব সংরক্ষিত।</p>
-          <button 
-            type="button" 
-            className="admin-footer-btn"
-            onClick={() => {
-              window.history.pushState({}, '', '/admin');
-              setCurrentView('admin-login');
-            }}
-          >
-            MorshedZone Admin Panel
-          </button>
+          <p className="credit-text">
+            Made by <a href="https://shakhwatrasel.vercel.app" target="_blank" rel="noopener noreferrer">Shakhwat Hossain Rasel</a>
+          </p>
         </div>
       </footer>
 

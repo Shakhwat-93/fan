@@ -1228,6 +1228,23 @@ a {
     font-size: 0.9rem;
 }
 
+.credit-text {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.credit-text a {
+    color: var(--secondary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition-fast);
+}
+
+.credit-text a:hover {
+    color: var(--bg-white);
+}
+
 /* ==========================================
    MODAL POPUP (SUCCESS)
    ========================================== */
