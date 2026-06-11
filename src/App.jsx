@@ -161,6 +161,77 @@ function App() {
     }
   }, [isLoadingProduct, productName, unitPrice, hasFiredViewItem]);
 
+  // Dynamic JSON-LD structured data update
+  useEffect(() => {
+    if (!productName || !unitPrice) return;
+    try {
+      const scriptEl = document.getElementById('jsonld-product');
+      const imageUrls = (productImages && productImages.length > 0) 
+        ? productImages.map(img => img.startsWith('http') ? img : `https://morshedzone.com${img.startsWith('/') ? '' : '/'}${img}`) 
+        : [
+            "https://morshedzone.com/img/fan_1.webp",
+            "https://morshedzone.com/img/fan_2.webp",
+            "https://morshedzone.com/img/fan_3.webp"
+          ];
+      
+      const schemaData = {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": productName,
+        "image": imageUrls,
+        "description": "বিদ্যুৎ চলে গেলেও বাতাস থামবে না! 16 ইঞ্চির শক্তিশালী 5 ব্লেড ফ্যান ও 7 অ্যাম্পিয়ার ব্যাটারির দুর্দান্ত ব্যাকআপ নিয়ে এলো ডিফেন্ডার রিচার্জেবল টেবিল ফ্যান।",
+        "sku": "DEF-2916",
+        "mpn": "DEF-2916",
+        "brand": {
+          "@type": "Brand",
+          "name": "Defender"
+        },
+        "review": {
+          "@type": "Review",
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": "4.9",
+            "bestRating": "5"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "শাফিন আহমেদ"
+          }
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "reviewCount": "124"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://morshedzone.com/",
+          "priceCurrency": "BDT",
+          "price": String(unitPrice),
+          "priceValidUntil": "2027-12-31",
+          "itemCondition": "https://schema.org/NewCondition",
+          "availability": "https://schema.org/InStock",
+          "seller": {
+            "@type": "Organization",
+            "name": "MorshedZone"
+          }
+        }
+      };
+      
+      if (scriptEl) {
+        scriptEl.innerHTML = JSON.stringify(schemaData, null, 2);
+      } else {
+        const newScript = document.createElement('script');
+        newScript.id = 'jsonld-product';
+        newScript.type = 'application/ld+json';
+        newScript.innerHTML = JSON.stringify(schemaData, null, 2);
+        document.head.appendChild(newScript);
+      }
+    } catch (e) {
+      console.error('Error updating JSON-LD schema:', e);
+    }
+  }, [productName, unitPrice, productImages]);
+
   // Fetch product data from Supabase
   const fetchProductDetails = async () => {
     setIsLoadingProduct(true);
@@ -1154,7 +1225,14 @@ function App() {
           
           <div className="hero-visual">
             <div className="main-image-wrapper">
-              <img id="main-product-img" src={heroImg} alt={productName} className="hero-img" />
+              <img 
+                id="main-product-img" 
+                src={heroImg} 
+                alt={productName} 
+                className="hero-img" 
+                fetchPriority="high" 
+                decoding="async" 
+              />
             </div>
             <div className="thumbnail-grid">
               {productImages.map((imgUrl, i) => (
@@ -1164,6 +1242,8 @@ function App() {
                   alt={`Fan View ${i + 1}`} 
                   className={`thumb-img ${heroImg === imgUrl ? 'active' : ''}`}
                   onClick={() => setHeroImg(imgUrl)}
+                  loading="lazy"
+                  decoding="async"
                 />
               ))}
             </div>
@@ -1275,6 +1355,8 @@ function App() {
               frameBorder="0" 
               allowFullScreen={true} 
               allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+              loading="lazy"
+              title="Defender Fan Live Video Review"
             />
           </div>
           
@@ -1300,7 +1382,12 @@ function App() {
                   key={index} 
                   className={`slide-item ${currentSlideIndex === index ? 'active' : ''}`}
                 >
-                  <img src={slide} alt={`Defender Fan Showcase ${index + 1}`} />
+                  <img 
+                    src={slide} 
+                    alt={`Defender Fan Showcase ${index + 1}`} 
+                    loading="lazy" 
+                    decoding="async" 
+                  />
                 </div>
               ))}
             </div>
