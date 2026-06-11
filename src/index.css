@@ -2052,5 +2052,57 @@ a {
     border: 1px solid var(--border-color);
 }
 
+/* ==========================================
+   COURIER RATIO CHECK
+   ========================================== */
+.courier-badge-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+}
+
+.courier-ratio-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.courier-ratio-high {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.courier-ratio-mid {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.courier-ratio-low {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.courier-alert-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fee2e2;
+    cursor: help;
+}
+
+.courier-no-data {
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
 
 

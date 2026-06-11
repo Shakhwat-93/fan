@@ -534,6 +534,51 @@ function App() {
         }
       }
 
+      // 3.5 Courier Ratio Check API Integration
+      let courierDetails = null;
+      try {
+        // Try to find if this phone already has an order with courier details in the DB
+        const existingCourierCheckRes = await fetch(`${SUPABASE_URL}/rest/v1/orders?phone=eq.${encodeURIComponent(phone)}&courier_details=not.is.null&select=courier_details&limit=1`, {
+          method: 'GET',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+
+        if (existingCourierCheckRes.ok) {
+          const existingCourierData = await existingCourierCheckRes.json();
+          if (existingCourierData && existingCourierData.length > 0 && existingCourierData[0].courier_details) {
+            courierDetails = existingCourierData[0].courier_details;
+            console.log('Found existing courier details in DB for phone:', phone);
+          }
+        }
+
+        // If not found in DB, query the BD Courier API
+        if (!courierDetails) {
+          console.log('Fetching courier details from BD Courier API for phone:', phone);
+          const apiRes = await fetch('https://api.bdcourier.com/courier-check', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer 7n2S0hxacIAKGxoSleQVGyUmP8AtLS6K6rpmAKUCpsCzlfSDGvQX9deGsqgo'
+            },
+            body: JSON.stringify({ phone: phone })
+          });
+
+          if (apiRes.ok) {
+            const apiData = await apiRes.json();
+            if (apiData) {
+              courierDetails = apiData;
+            }
+          } else {
+            console.warn('Courier API response was not OK:', apiRes.status);
+          }
+        }
+      } catch (courierErr) {
+        console.error('Error fetching/checking courier data:', courierErr);
+      }
+
       // 4. Insert order if all checks passed
       const generatedOrderId = 'MZ-' + Math.floor(100000 + Math.random() * 900000);
 
@@ -556,7 +601,8 @@ function App() {
           quantity: quantity,
           status: 'pending',
           variant: productVariant,
-          ip_address: currentIp || null
+          ip_address: currentIp || null,
+          courier_details: courierDetails
         }),
       });
 
@@ -642,6 +688,44 @@ function App() {
     setIsAdminAuthenticated(false);
     setCurrentView('landing');
     window.history.pushState({}, '', '/');
+  };
+
+  // Manual Courier Check (Admin only)
+  const handleCourierCheckManual = async (orderId, phone) => {
+    try {
+      const response = await fetch('https://api.bdcourier.com/courier-check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer 7n2S0hxacIAKGxoSleQVGyUmP8AtLS6K6rpmAKUCpsCzlfSDGvQX9deGsqgo'
+        },
+        body: JSON.stringify({ phone: phone })
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch courier details.');
+      const apiData = await response.json();
+      
+      if (apiData) {
+        const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${orderId}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ courier_details: apiData })
+        });
+        
+        if (!patchRes.ok) throw new Error('Failed to save courier details.');
+        
+        // Refresh local orders list
+        fetchOrders();
+        alert('কুরিয়ার তথ্য সফলভাবে আপডেট করা হয়েছে!');
+      }
+    } catch (err) {
+      console.error('Manual courier check error:', err);
+      alert('কুরিয়ার তথ্য চেক করতে সমস্যা হয়েছে।');
+    }
   };
 
   // Change Order Status
@@ -900,6 +984,7 @@ function App() {
                         <th>গ্রাহকের বিবরণ</th>
                         <th>ঠিকানা</th>
                         <th>পরিমাণ ও প্রদেয় মূল্য</th>
+                        <th>কুরিয়ার স্ট্যাটাস</th>
                         <th>স্ট্যাটাস</th>
                         <th>অ্যাকশন</th>
                       </tr>
@@ -931,6 +1016,51 @@ function App() {
                             {toBanglaDigits(order.quantity)} টি ফ্যান ({order.variant === 'Blue' ? 'নীল' : 'ধূসর'})
                             <br />
                             <strong>৳{toBanglaDigits(order.total_price)}</strong>
+                          </td>
+                          <td>
+                            {order.courier_details ? (
+                              <div className="courier-badge-container">
+                                {(() => {
+                                  const summary = order.courier_details.data?.summary;
+                                  const reports = order.courier_details.reports || [];
+                                  
+                                  if (!summary) return <span className="courier-no-data">তথ্য নেই</span>;
+                                  
+                                  const ratio = summary.success_ratio || 0;
+                                  let ratioClass = 'courier-ratio-low';
+                                  if (ratio >= 85) ratioClass = 'courier-ratio-high';
+                                  else if (ratio >= 70) ratioClass = 'courier-ratio-mid';
+                                  
+                                  return (
+                                    <>
+                                      <div className={`courier-ratio-badge ${ratioClass}`} title={`সফল: ${summary.success_parcel} | বাতিল: ${summary.cancelled_parcel}`}>
+                                        {ratio}% সফলতা
+                                      </div>
+                                      <div className="courier-stats-text" style={{ fontSize: '0.8rem', marginTop: '2px', color: 'var(--text-muted)' }}>
+                                        মোট পার্সেল: {summary.total_parcel}
+                                      </div>
+                                      {reports.length > 0 && (
+                                        <div 
+                                          className="courier-alert-badge" 
+                                          style={{ marginTop: '4px' }}
+                                          title={reports.map(r => `${r.name || 'Anonymous'}: ${r.details || ''}`).join('\n')}
+                                        >
+                                          🚨 {reports.length} টি রিপোর্ট!
+                                        </div>
+                                      )}
+                                    </>
+                                  );
+                                })()}
+                              </div>
+                            ) : (
+                              <button 
+                                className="cta-button secondary-cta" 
+                                style={{ padding: '6px 12px', fontSize: '0.8rem', fontWeight: 600, minHeight: 'auto' }}
+                                onClick={() => handleCourierCheckManual(order.id, order.phone)}
+                              >
+                                কুরিয়ার চেক
+                              </button>
+                            )}
                           </td>
                           <td>
                             <span className={`status-badge ${order.status}`}>
