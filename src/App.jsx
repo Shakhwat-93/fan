@@ -1317,6 +1317,32 @@ function App() {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="container hero-container">
+          <div className="hero-visual">
+            <div className="main-image-wrapper">
+              <img 
+                id="main-product-img" 
+                src={heroImg} 
+                alt={productName} 
+                className="hero-img" 
+                fetchPriority="high" 
+                decoding="async" 
+              />
+            </div>
+            <div className="thumbnail-grid">
+              {productImages.map((imgUrl, i) => (
+                <img 
+                  key={i}
+                  src={imgUrl} 
+                  alt={`Fan View ${i + 1}`} 
+                  className={`thumb-img ${heroImg === imgUrl ? 'active' : ''}`}
+                  onClick={() => setHeroImg(imgUrl)}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))}
+            </div>
+          </div>
+
           <div className="hero-content">
             <div className="badge-promo">1 বছরের সার্ভিস ওয়ারেন্টি</div>
             <h1 className="hero-title">গরমের তীব্রতায় স্বস্তির নিশ্চয়তা! <br /><span>{productName}</span></h1>
@@ -1361,32 +1387,6 @@ function App() {
               <a href="#features" className="cta-button secondary-cta">
                 বিস্তারিত জানুন
               </a>
-            </div>
-          </div>
-          
-          <div className="hero-visual">
-            <div className="main-image-wrapper">
-              <img 
-                id="main-product-img" 
-                src={heroImg} 
-                alt={productName} 
-                className="hero-img" 
-                fetchPriority="high" 
-                decoding="async" 
-              />
-            </div>
-            <div className="thumbnail-grid">
-              {productImages.map((imgUrl, i) => (
-                <img 
-                  key={i}
-                  src={imgUrl} 
-                  alt={`Fan View ${i + 1}`} 
-                  className={`thumb-img ${heroImg === imgUrl ? 'active' : ''}`}
-                  onClick={() => setHeroImg(imgUrl)}
-                  loading="lazy"
-                  decoding="async"
-                />
-              ))}
             </div>
           </div>
         </div>
