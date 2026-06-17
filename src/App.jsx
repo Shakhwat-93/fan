@@ -1579,7 +1579,7 @@ function App() {
                 </tr>
                 <tr>
                   <td className="spec-label">ইনপুট ভোল্টেজ</td>
-                  <td className="spec-value">AC 220V - 50Hz / DC 12V চার্জিং পাওয়ার</td>
+                  <td className="spec-value">AC 220V - 50Hz / DC 5V চার্জিং পাওয়ার</td>
                 </tr>
                 <tr>
                   <td className="spec-label">ওয়ারেন্টি</td>
