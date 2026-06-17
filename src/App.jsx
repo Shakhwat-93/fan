@@ -28,14 +28,13 @@ function App() {
   const [unitPrice, setUnitPrice] = useState(4500);
   const [originalPrice, setOriginalPrice] = useState(5500);
   const [productImages, setProductImages] = useState([
-    '/img/fan_1.webp',
     '/img/fan_2.webp',
     '/img/fan_3.webp'
   ]);
   const [isLoadingProduct, setIsLoadingProduct] = useState(true);
 
   // Hero Section Display State
-  const [heroImg, setHeroImg] = useState('/img/fan_1.webp');
+  const [heroImg, setHeroImg] = useState('/img/fan_2.webp');
 
   // Showcase Carousel Slide Index
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -171,7 +170,6 @@ function App() {
       const imageUrls = (productImages && productImages.length > 0) 
         ? productImages.map(img => img.startsWith('http') ? img : `https://morshedzone.com${img.startsWith('/') ? '' : '/'}${img}`) 
         : [
-            "https://morshedzone.com/img/fan_1.webp",
             "https://morshedzone.com/img/fan_2.webp",
             "https://morshedzone.com/img/fan_3.webp"
           ];
@@ -1178,7 +1176,7 @@ function App() {
                 <div className="image-edit-grid">
                   <div className="image-edit-card">
                     <div className="image-edit-preview">
-                      <img src={editImage1 || '/img/fan_1.webp'} alt="Preview 1" />
+                      <img src={editImage1 || '/img/fan_2.webp'} alt="Preview 1" />
                     </div>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>ইমেজ ১ (প্রধান ছবি)</label>
                     <input 
@@ -1192,7 +1190,7 @@ function App() {
                   
                   <div className="image-edit-card">
                     <div className="image-edit-preview">
-                      <img src={editImage2 || '/img/fan_2.webp'} alt="Preview 2" />
+                      <img src={editImage2 || '/img/fan_3.webp'} alt="Preview 2" />
                     </div>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600 }}>ইমেজ ২</label>
                     <input 
