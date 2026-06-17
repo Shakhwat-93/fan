@@ -52,7 +52,7 @@ function App() {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
-  const [productVariant, setProductVariant] = useState('Grey'); // 'Grey' | 'Blue'
+  const [productVariant, setProductVariant] = useState('White'); // 'White' | 'Red'
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const isSubmittingRef = useRef(false);
   const [checkingCourier, setCheckingCourier] = useState({});
@@ -658,7 +658,7 @@ function App() {
       setCustomerName('');
       setCustomerPhone('');
       setCustomerAddress('');
-      setProductVariant('Grey');
+      setProductVariant('White');
       setQuantity(1);
       setDeliveryArea('inside');
       setShippingCharge(80);
@@ -1023,7 +1023,7 @@ function App() {
                             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--secondary)' }}>({order.delivery_area})</span>
                           </td>
                           <td>
-                            {toBanglaDigits(order.quantity)} টি ফ্যান ({order.variant === 'Blue' ? 'নীল' : 'ধূসর'})
+                            {toBanglaDigits(order.quantity)} টি ফ্যান ({(order.variant === 'Red' || order.variant === 'Blue') ? 'লাল' : 'সাদা'})
                             <br />
                             <strong>৳{toBanglaDigits(order.total_price)}</strong>
                           </td>
@@ -1256,7 +1256,7 @@ function App() {
               <div className="summary-line"><span>মোবাইল নং:</span> <strong>{placedOrder.phone}</strong></div>
               <div className="summary-line"><span>ডেলিভারি ঠিকানা:</span> <strong>{placedOrder.address}</strong></div>
               <div className="summary-line"><span>প্রোডাক্ট:</span> <strong>{productName}</strong></div>
-              <div className="summary-line"><span>কালার (ভেরিয়েন্ট):</span> <strong>{placedOrder.variant === 'Grey' ? 'ধূসর (Grey)' : 'নীল (Blue)'}</strong></div>
+              <div className="summary-line"><span>কালার (ভেরিয়েন্ট):</span> <strong>{(placedOrder.variant === 'Red' || placedOrder.variant === 'Blue') ? 'লাল (Red)' : 'সাদা (White)'}</strong></div>
               <div className="summary-line"><span>পরিমাণ:</span> <strong>{toBanglaDigits(placedOrder.quantity)} টি</strong></div>
               <div className="summary-line"><span>মোট প্রদেয় মূল্য:</span> <strong className="accent-color">৳{toBanglaDigits(placedOrder.total_price)}</strong></div>
             </div>
@@ -1802,16 +1802,16 @@ function App() {
                 <label>ফ্যানের কালার (পছন্দ করুন) <span className="required">*</span></label>
                 <div className="radio-group">
                   <div 
-                    className={`radio-label ${productVariant === 'Grey' ? 'active' : ''}`}
-                    onClick={() => setProductVariant('Grey')}
+                    className={`radio-label ${productVariant === 'White' ? 'active' : ''}`}
+                    onClick={() => setProductVariant('White')}
                   >
-                    <span>ধূসর (Grey)</span>
+                    <span>সাদা (White)</span>
                   </div>
                   <div 
-                    className={`radio-label ${productVariant === 'Blue' ? 'active' : ''}`}
-                    onClick={() => setProductVariant('Blue')}
+                    className={`radio-label ${productVariant === 'Red' ? 'active' : ''}`}
+                    onClick={() => setProductVariant('Red')}
                   >
-                    <span>নীল (Blue)</span>
+                    <span>লাল (Red)</span>
                   </div>
                 </div>
               </div>
