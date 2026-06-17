@@ -73,6 +73,7 @@ function App() {
 
   // Fraud / Spam Prevention States
   const [userIp, setUserIp] = useState('');
+  const [ipFetched, setIpFetched] = useState(false);
   const [isBlockedUser, setIsBlockedUser] = useState(false);
   const [isDuplicateOrder, setIsDuplicateOrder] = useState(false);
 
@@ -142,10 +143,11 @@ function App() {
 
   // GA4 Data Layer view_item tracking
   useEffect(() => {
-    if (!isLoadingProduct && !hasFiredViewItem && productName && unitPrice) {
+    if (!isLoadingProduct && !hasFiredViewItem && productName && unitPrice && (ipFetched || userIp)) {
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: "view_item",
+        ip_address: userIp || "unknown",
         ecommerce: {
           currency: "BDT",
           value: unitPrice,
@@ -160,7 +162,7 @@ function App() {
       });
       setHasFiredViewItem(true);
     }
-  }, [isLoadingProduct, productName, unitPrice, hasFiredViewItem]);
+  }, [isLoadingProduct, productName, unitPrice, hasFiredViewItem, userIp, ipFetched]);
 
   // Dynamic JSON-LD structured data update
   useEffect(() => {
@@ -288,6 +290,8 @@ function App() {
       }
     } catch (error) {
       console.error('Error fetching client IP on mount:', error);
+    } finally {
+      setIpFetched(true);
     }
   };
 
@@ -634,10 +638,18 @@ function App() {
       window.history.pushState({}, '', '/order-success');
       setCurrentView('success');
 
-      // Push GA4 Purchase Event in exact requested format (without customer sensitive data)
+      // Push GA4 Purchase Event including customer data and IP address
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: "purchase",
+        ip_address: userIp || "unknown",
+        customer: {
+          name: name,
+          phone: phone,
+          address: address,
+          delivery_area: deliveryArea,
+          variant: productVariant
+        },
         ecommerce: {
           transaction_id: generatedOrderId,
           value: totalPrice,
